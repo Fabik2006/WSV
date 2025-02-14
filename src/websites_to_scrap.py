@@ -2,14 +2,10 @@ from dataclasses import dataclass
 
 
 @dataclass
-class ScrapeOptionBertrandt:
-    tag:str
-    attrs:dict
+class ScrapeOption:
+    tag: str
+    attrs: dict
 
-@dataclass
-class ScrapeOptionAtlasCopco:
-    tag:str
-    attrs:dict
 
 def scrape_options():
     websites = {
@@ -17,16 +13,18 @@ def scrape_options():
         "AtlasCopco": "https://www.atlascopco.com/de-de/jobs/job-overview?function=Research%20and%20Development"
     }
 
-    scrapeOptionsBertrandt= [
-        ScrapeOptionBertrandt("div", {"class": ["row row-table row-24 collapsed row-table-condensed",
+    scrapeOptionsBertrandt = [
+        ScrapeOption("div", {"class": ["row row-table row-24 collapsed row-table-condensed",
                              "row row-table row-24 collapsed even row-table-condensed"]}),
-        ScrapeOptionBertrandt("a", { "href": True}),
-        ScrapeOptionBertrandt("div", {"class_": "inner", "style": "white-space: normal;"})
+        ScrapeOption("a", {"href": True}),
+        ScrapeOption(
+            "div", {
+                "class_": "inner", "style": "white-space: normal;"})
     ]
 
     scrapeOptionsAtlasCopco = [
-        ScrapeOptionBertrandt("article", {"class": "o-grid o-grid--small u-stb"}),
-        ScrapeOptionBertrandt("a", { "href": True}),
-        ScrapeOptionBertrandt("p", {"class_": "c-caption u-mb-alpha"})
+        ScrapeOption("article", {"class": "o-grid o-grid--small u-stb"}),
+        ScrapeOption("a", {"href": True}),
+        ScrapeOption("p", {"class_": "c-caption u-mb-alpha"})
     ]
     return [scrapeOptionsBertrandt, scrapeOptionsAtlasCopco], websites

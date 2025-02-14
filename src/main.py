@@ -8,7 +8,6 @@ import pandas as pd
 from websites_to_scrap import scrape_options
 from website_scrapper import ScrapeJobs
 
-CSV_LINK = "job_opportunities.csv"
 
 class writecsv():
     def __init__(self, CSV_LINK, URL, company, scrape_option):
@@ -28,8 +27,12 @@ class writecsv():
                                       encoding="latin-1",
                                       )
         else:
-            old_jobs_df = pd.DataFrame(columns=["Title", "Link", "Location", "Company"])
-
+            old_jobs_df = pd.DataFrame(
+                columns=[
+                    "Title",
+                    "Link",
+                    "Location",
+                    "Company"])
 
         for i, option in enumerate(self.option):
             instance = ScrapeJobs(self.URL[i], option)
@@ -42,11 +45,16 @@ class writecsv():
             merged_df = new_jobs_df.merge(old_jobs_df, on=["Title", "Link", "Location", "Company"], how="left",
                                           indicator=True)
 
-            new_entries = merged_df[merged_df["_merge"] == "left_only"].drop(columns=["_merge"])
-            new_job_title = new_entries.loc[:,"Title"]
+            new_entries = merged_df[merged_df["_merge"]
+                                    == "left_only"].drop(columns=["_merge"])
+            new_job_title = new_entries.loc[:, "Title"]
 
             if not new_entries.empty:
-                print(f"\n📬 {self.company[i]} hires! These are the new roles: \n {new_job_title.to_string(index=False)}")
+                print(
+                    f"\n📬 {
+                        self.company[i]} hires! These are the new roles: \n {
+                        new_job_title.to_string(
+                            index=False)}")
                 print("\n Checking...")
             else:
                 print("\n❌ No new entry at the moment!")
@@ -63,30 +71,36 @@ class writecsv():
         """
         if not os.path.exists(CSV_LINK):
             with open(CSV_LINK, "a", newline="") as csvfile:
-                    fieldnames = ["Title", "Link", "Location", "Company"]
-                    writer = csv.DictWriter(csvfile, delimiter=";", fieldnames=fieldnames)
-                    writer.writeheader()
-                    writer.writerows(data)
+                fieldnames = ["Title", "Link", "Location", "Company"]
+                writer = csv.DictWriter(
+                    csvfile, delimiter=";", fieldnames=fieldnames)
+                writer.writeheader()
+                writer.writerows(data)
         else:
             with open(CSV_LINK, "a", newline="") as csvfile:
                 fieldnames = ["Title", "Link", "Location", "Company"]
-                writer = csv.DictWriter(csvfile, delimiter=";", fieldnames=fieldnames)
+                writer = csv.DictWriter(
+                    csvfile, delimiter=";", fieldnames=fieldnames)
                 writer.writerows(data)
 
-scrape_option, websites = scrape_options()
-URL = []
-company = []
-for key, values in websites.items():
-    URL.append(values)
-    company.append(key)
-
-run_scrapper = writecsv(CSV_LINK, URL, company, scrape_option)
 
 def safe_check():
+    scrape_option, websites = scrape_options()
+    CSV_LINK = "job_opportunities.csv"
+
+    URL = []
+    company = []
+    for key, values in websites.items():
+        URL.append(values)
+        company.append(key)
+
+    run_scrapper = writecsv(CSV_LINK, URL, company, scrape_option)
+
     try:
         run_scrapper.check_new_entries()
     except Exception as e:
         print(f"Error in job checking: {e}")
+
 
 schedule.every(60).minutes.do(safe_check)
 

@@ -7,10 +7,10 @@ import requests
 from bs4 import BeautifulSoup
 
 
-
 chrome_options = Options()
 chrome_options.add_argument("--headless=new")
 driver = webdriver.Chrome(options=chrome_options)
+
 
 def scrape_website(URL):
     """
@@ -22,8 +22,9 @@ def scrape_website(URL):
 
     try:
         driver.get(URL)
-        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-        return BeautifulSoup(driver.page_source,'html.parser')
+        driver.execute_script(
+            "window.scrollTo(0, document.body.scrollHeight);")
+        return BeautifulSoup(driver.page_source, 'html.parser')
     except requests.RequestException as e:
         print(f"Error fetching {URL}: {e}")
         return None
@@ -40,7 +41,7 @@ class ScrapeJobs:
 
     def scrape_jobs(self):
         job_container = self.soup.find_all(
-           self.options[0].tag, **self.options[0].attrs
+            self.options[0].tag, **self.options[0].attrs
         )
 
         job_links = []
