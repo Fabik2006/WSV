@@ -2,8 +2,9 @@ import os.path
 
 import schedule
 import time
+from datetime import datetime
 
-from websites_to_scrap import scrape_options
+from websites_to_scrape import scrape_options
 from scrapper_output import ScrapperOutput
 
 
@@ -59,7 +60,7 @@ class RunJobScrapper:
 Scraper_instance = RunJobScrapper(output_dir="job_opportunities.csv")
 CSV_LINK, URL, company, scrape_option = Scraper_instance.collect_information()
 
-schedule.every(1).minutes.do(lambda:Scraper_instance.run_scrapper(
+schedule.every(20).seconds.do(lambda:Scraper_instance.run_scrapper(
     CSV_LINK, URL, company, scrape_option)
 )
 
@@ -67,4 +68,4 @@ print(f"Job scrapper is running on ... Press Ctrl+C to stop")
 
 while True:
     schedule.run_pending()
-    time.sleep(60)
+    time.sleep(1)

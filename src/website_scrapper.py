@@ -1,24 +1,45 @@
-import re
+
 from collections import OrderedDict
-from selenium import webdriver
+from seleniumwire import webdriver
 from selenium.webdriver.chrome.options import Options
 
 import requests
 from bs4 import BeautifulSoup
 import random
-
-chrome_options = Options()
-chrome_options.add_argument("--headless")
-driver = webdriver.Chrome(options=chrome_options)
+from urllib.parse import urlparse
 
 
-def scrape_website(URL):
+
+def proxy_rotation(counter):
+    with open ("valid_proxies.txt", "r") as p:
+        proxies = p.read().split("\n")
+
+    chrome_options = Options()
+    chrome_options.add_argument("--headless")
+
+    for p in proxies:
+        proxy_options = {
+            "proxy":{
+                "http": p,
+                "https": p
+            },
+        }
+
+    driver = webdriver.Chrome(options=chrome_options,
+                              seleniumwire_options = proxy_options)
+
+    return proxies, driver
+
+def scrape_website(URL, counter):
     """
     This function provides methods to extract all relevant information out of the websites.
     It stores the information in a dictionary to access them easier by key-value-pairs.
 
     :return: jobs
     """
+
+    proxies = proxy_rotation(counter)
+
 
     try:
         driver.get(URL)
@@ -33,8 +54,8 @@ def scrape_website(URL):
 
 
 class ScrapeJobs:
-    def __init__(self, URL, options, company):
-        self.soup = scrape_website(URL)
+    def __init__(self, URL, options, company, counter):
+        self.soup = scrape_website(URL, counter)
         self.URL = URL
         self.options = options
         self.Company = company
@@ -51,34 +72,33 @@ class ScrapeJobs:
             raise ValueError(f"Jobs for company {self.Company} could not be found")
 
         job_links = []
+        job_list = []
         job_location = []
         for j, job_element in enumerate(job_container):
-            if j > 5:
-                break
-
-            link = job_element.find_all(
+            link_tag = job_element.find_all(
                 self.options[1].tag, **self.options[1].attrs
             )
-            if not link:
+            if not link_tag:
                 raise ValueError (f"Link for company {self.Company} could not be found")
+            if not link_tag[0]["href"].startswith("https://"):
+                link = urlparse(self.URL).netloc + link_tag[0]["href"]
+                job_links.append(link)
+                job_list.append(link_tag[0].get_text(strip=True))
 
             location = job_element.find_all(
                 self.options[2].tag, **self.options[2].attrs
             )
             if not location:
                 raise ValueError (f"Location for company {self.Company} could not be found")
-
-            job_links.append(link)
-            job_location.append(location)
-
-        job_company = re.search(r'https?://([^/]+)\.', self.URL)
+            else:
+                job_location.append(location[0].get_text(strip=True))
 
         job_dict = []
-        for job, location in zip(job_links, job_location):
+        for job_ele, link_ele, location_ele in zip(job_list, job_links, job_location):
             job_dict.append(OrderedDict({
-                "Title": job[0].get_text(),
-                "Link": f'=HYPERLINK("https://{job_company[1] + ".jobs" + job[0]["href"]}")',
-                "Location": location[0].get_text(strip=True),
+                "Title": job_ele,
+                "Link": f'=HYPERLINK("https://{link_ele}")',
+                "Location": location_ele,
                 "Company": self.Company
             }))
 

@@ -34,7 +34,7 @@ class ScrapperOutput():
     def parse_info(self, old_jobs_df):
 
         for i, option in enumerate(self.option):
-            instance = ScrapeJobs(self.URL[i], option, self.company[i])
+            instance = ScrapeJobs(self.URL[i], option, self.company[i], i)
             new_jobs = instance.scrape_jobs()
 
             if not new_jobs:
