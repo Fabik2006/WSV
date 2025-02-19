@@ -2,7 +2,6 @@ import os.path
 
 import schedule
 import time
-from datetime import datetime
 
 from websites_to_scrape import scrape_options
 from scrapper_output import ScrapperOutput
