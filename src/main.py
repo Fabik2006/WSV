@@ -2,6 +2,7 @@ import os.path
 
 import schedule
 import time
+import sys
 
 from websites_to_scrape import scrape_options
 from scrapper_output import ScrapperOutput
@@ -54,12 +55,12 @@ class RunJobScrapper:
             run_scrapper.check_new_entries()
         except Exception as e:
             print(f"Error in job checking: {e}")
-
+            sys.exit()
 
 Scraper_instance = RunJobScrapper(output_dir="job_opportunities.csv")
-CSV_LINK, URL, company, scrape_option = Scraper_instance.collect_information()
+CSV_LINK, URL, company, scrape_option= Scraper_instance.collect_information()
 
-schedule.every(20).seconds.do(lambda:Scraper_instance.run_scrapper(
+schedule.every(1).seconds.do(lambda:Scraper_instance.run_scrapper(
     CSV_LINK, URL, company, scrape_option)
 )
 
