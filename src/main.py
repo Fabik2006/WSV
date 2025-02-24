@@ -60,7 +60,7 @@ class RunJobScrapper:
 Scraper_instance = RunJobScrapper(output_dir="job_opportunities.csv")
 CSV_LINK, URL, company, scrape_option= Scraper_instance.collect_information()
 
-schedule.every(1).seconds.do(lambda:Scraper_instance.run_scrapper(
+schedule.every(10).seconds.do(lambda:Scraper_instance.run_scrapper(
     CSV_LINK, URL, company, scrape_option)
 )
 

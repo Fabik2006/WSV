@@ -105,17 +105,20 @@ def proxy_rotation():
         proxy_list = pr.read().split("\n")
 
     proxy = random.choice(proxy_list)
-    seleniumwire_options = {
-            "proxy":{
-                "http": f"http://{proxy}",
-                "https": f"https://{proxy}",
-                 "no_proxy": "localhost,127.0.0.1"
-            },
-        }
 
-    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()),
-                            options=chrome_options,
-                            seleniumwire_options = seleniumwire_options)
+    print(f"\nUsing proxy {proxy}")
+    webdriver.DesiredCapabilities.CHROME["proxy"] =  {
+    "httpProxy": proxy,
+    "ftpProxy": proxy,
+    "sslProxy": proxy,
+    "proxyType": "MANUAL",
+
+    }
+    #webdriver.DesiredCapabilities.CHROME['acceptSslCerts'] = True
+
+    driver =webdriver.Chrome(service=Service(ChromeDriverManager().install()),
+                             options = chrome_options)
+
 
     return driver
 
@@ -143,7 +146,7 @@ def scrape_website(URL):
 
 class ScrapeJobs(ScrapperOutput):
     def __init__(self, URL, options, company, CSV_LINK):
-        super().__init__(CSV_LINK, URL, options, company)
+        super().__init__(CSV_LINK, URL, company, options)
         self.soup = scrape_website(URL)
 
         if self.soup is None:
